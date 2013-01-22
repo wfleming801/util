@@ -15,137 +15,139 @@ javaVersion="$2"
 verDes="$3"
 prefix="--- "
 newLoc="/usr/local/java"
-jdk32="jdk-$verDes-linux-i586.tar.gz"
-jre32="jre-$verDes-linux-i586.tar.gz"
-jdk64="jdk-$verDes-linux-x64.tar.gz"
-jre64="jre-$verDes-linux-x64.tar.gz"
+jdk32="jdk-$verDes-linux-i586.gz"
+jre32="jre-$verDes-linux-i586.gz"
+jdk64="jdk-$verDes-linux-x64.gz"
+jre64="jre-$verDes-linux-x64.gz"
 doc32="jdk-$verDes-apidocs.zip"
 doc64="jdk-$verDes-apidocs.zip"
-javaEdit="/etc/profile.javaEdit"
+javaEdit="/etc/profile"
+timeStamp=`date +%Y%m%d_%H%M%S`
+log="./javaInstall_$timeStamp.log"
 
 # an installation script based on wikihow document
 # "how to install Oracle Java on Ubuntu Linux"
 # 
 
-echo "$prefix STEP 1"
-echo "check if you have 32-bit or 64-bit system"
+echo "$prefix STEP 1" | tee -a $log
+echo "check if you have 32-bit or 64-bit system" | tee -a $log
 bit32=`file /sbin/init | grep "32-bit" | wc -l`
 bit64=`file /sbin/init | grep "64-bit" | wc -l`
-if [ $bit32 == 1]; then
-	echo "this is a 32-bit system"
+if [ $bit32 == 1 ]; then
+	echo "this is a 32-bit system" | tee -a $log
 fi
-if [ $bit64 == 1]; then
-	echo "this is a 64-bit system"
+if [ $bit64 == 1 ]; then
+	echo "this is a 64-bit system" | tee -a $log
 fi
 
-echo "$prefix STEP 2"
-echo "check if openjdk java is installed"
+echo "$prefix STEP 2" | tee -a $log
+echo "check if openjdk java is installed" | tee -a $log
 openJDK=`java -version | grep "OpenJDK" | wc -l`
 
-echo "$prefix STEP 3"
-echo "if present remove openJDK"
+echo "$prefix STEP 3" | tee -a $log
+echo "if present remove openJDK" | tee -a $log
 if [ $openJDK == 1 ]; then
-	echo "REMOVING OpenJDK"
-	sudo apt-get purge "openjdk-\*"
+	echo "REMOVING OpenJDK" | tee -a $log
+	sudo apt-get purge "openjdk-\*" | tee -a $log
 fi
-echo "make location for new Java"
-sudo mkdir -p $newLoc
+echo "make location for new Java" | tee -a $log
+sudo mkdir -p $newLoc | tee -a $log
 
-echo "$prefix STEP 4"
-echo " download Java JDK & JRE for linux"
-echo "STEP 4: ASSUME this has already been downloaded and available in $tarSource"
+echo "$prefix STEP 4" | tee -a $log
+echo " download Java JDK & JRE for linux" | tee -a $log
+echo "STEP 4: ASSUME this has already been downloaded and available in $tarSource" | tee -a $log
 
-echo "$prefix STEP 5"
-echo "copy java binaries into new java location"
-cd $tarSource
-if [ $bit32 == 1]; then
-	echo "copying 32-bit files"
-	sudo -s cp -r $jdk32 $newLoc
-	sudo -s cp -r $jre32 $newLoc
-	sudo -s cp -r $doc32 $newLoc
+echo "$prefix STEP 5" | tee -a $log
+echo "copy java binaries into new java location" | tee -a $log
+cd "$tarSource" | tee -a $log
+if [ $bit32 == 1 ]; then
+	echo "copying 32-bit files" | tee -a $log
+	sudo -s cp -r $jdk32 $newLoc | tee -a $log
+	sudo -s cp -r $jre32 $newLoc | tee -a $log
+	sudo -s cp -r $doc32 $newLoc | tee -a $log
 fi
-if [ $bit64 == 1]; then
-	echo "copying 64-bit files"
-	sudo -s cp -r $jdk64 $newLoc
-	sudo -s cp -r $jre64 $newLoc
-	sudo -s cp -r $doc64 $newLoc
-fi
-
-echo "cd to $newLoc"
-cd $newLoc
-
-echo "$prefix STEP 6"
-echo "set permissions"
-if [ $bit32 == 1];	then
-	sudo -s chmod a+x $jdk32
-	sudo -s chmod a+x $jre32
-	sudo -s chmod a+x $doc32
-fi
-if [ $bit64 == 1]; then
-	sudo -s chmod a+x $jdk64
-	sudo -s chmod a+x $jre64
-	sudo -s chmod a+x $doc64
+if [ $bit64 == 1 ]; then
+	echo "copying 64-bit files" | tee -a $log
+	sudo -s cp -r $jdk64 $newLoc | tee -a $log
+	sudo -s cp -r $jre64 $newLoc | tee -a $log
+	sudo -s cp -r $doc64 $newLoc | tee -a $log
 fi
 
-echo "$prefix STEP 7"
-echo "unpack the compressed Java binaries"
-if [ $bit32 == 1]; then
-	sudo -s tar xvzf $jdk32
-	sudo -s tar xvzf $jre32
-	sudo -s unzip $doc32
+echo "cd to $newLoc" | tee -a $log
+cd $newLoc | tee -a $log
+
+echo "$prefix STEP 6" | tee -a $log
+echo "set permissions" | tee -a $log
+if [ $bit32 == 1 ];	then
+	sudo -s chmod a+x $jdk32 | tee -a $log
+	sudo -s chmod a+x $jre32 | tee -a $log
+	sudo -s chmod a+x $doc32 | tee -a $log
 fi
-if [ $bit64 == 1]; then
-	sudo -s tar xvzf $jdk64
-	sudo -s tar xvzf $jdk64
-	sudo -s unzip $doc64
+if [ $bit64 == 1 ]; then
+	sudo -s chmod a+x $jdk64 | tee -a $log
+	sudo -s chmod a+x $jre64 | tee -a $log
+	sudo -s chmod a+x $doc64 | tee -a $log
 fi
 
-echo "$prefix STEP 8"
-echo "double check directories"
-ls -a
-echo "you should have seen a directory for jre$javaVersion/, jdk$javaVersion/, and doc/"
+echo "$prefix STEP 7" | tee -a $log
+echo "unpack the compressed Java binaries" | tee -a $log
+if [ $bit32 == 1 ]; then
+	sudo -s tar xvzf $jdk32 | tee -a $log
+	sudo -s tar xvzf $jre32 | tee -a $log
+	sudo -s unzip $doc32 | tee -a $log
+fi
+if [ $bit64 == 1 ]; then
+	sudo -s tar xvzf $jdk64 | tee -a $log
+	sudo -s tar xvzf $jdk64 | tee -a $log
+	sudo -s unzip $doc64 | tee -a $log
+fi
+
+echo "$prefix STEP 8" | tee -a $log
+echo "double check directories" | tee -a $log
+ls -a | tee -a $log
+echo "you should have seen a directory for jre$javaVersion/, jdk$javaVersion/, and doc/" | tee -a $log
 
 
-echo "$prefix STEP 9,10,11"
-echo "edit /etc/profile"
-sudo -s cp /etc/profile /etc/profile.bak
-sudo -s cat /etc/profile > $javaEdit
-sudo -s echo "" >> $javaEdit
-sudo -s echo "JAVA_HOME=$newLoc/jdk$javaVersion" >> $javaEdit
-sudo -s echo "PATH=\$PATH:\$HOME/bin:\$JAVA_HOME/bin" >> $javaEdit
-sudo -s echo "JRE_HOME=$newLoc/jre$javaVersion" >> $javaEdit
-sudo -s echo "PATH=\$PATH:\$HOME/bin:\$JRE_HOME/bin" >> $javaEdit
-sudo -s echo "export JAVA_HOME" >> $javaEdit
-sudo -s echo "export JRE_HOME" >> $javaEdit
-sudo -s echo "export PATH" >> $javaEdit
-sudo -s cp $javaEdit /etc/profile
+echo "$prefix STEP 9,10,11" | tee -a $log
+echo "edit /etc/profile" | tee -a $log
+sudo su - | tee -a $log
+cp /etc/profile /etc/profile.bak | tee -a $log
+echo "" >> $javaEdit | tee -a $log
+echo "JAVA_HOME=$newLoc/jdk$javaVersion" >> $javaEdit | tee -a $log
+echo "PATH=\$PATH:\$HOME/bin:\$JAVA_HOME/bin" >> $javaEdit | tee -a $log
+echo "JRE_HOME=$newLoc/jre$javaVersion" >> $javaEdit | tee -a $log
+echo "PATH=\$PATH:\$HOME/bin:\$JRE_HOME/bin" >> $javaEdit | tee -a $log
+echo "export JAVA_HOME" >> $javaEdit | tee -a $log
+echo "export JRE_HOME" >> $javaEdit | tee -a $log
+echo "export PATH" >> $javaEdit | tee -a $log
+exit
 
-echo "$prefix STEP 12"
-echo "tell Ubuntu where Oracle java is"
-sudo update-alternatives --install "/usr/bin/java" "java" "$newLoc/jre$javaVersion/bin/java" 1
-sudo update-alternatives --install "/usr/bin/javac" "javac" "$newLoc/jdk$javaVersion/bin/javac" 1
-sudo update-alternatives --install "/usr/bin/javaws" "javaws" "$newLoc/jre$javaVersion/bin/javaws" 1
-
-
-echo "$prefix STEP 13"
-echo "tell Ubuntu that Oracle java must be default"
-sudo update-alternatives --set java $newLoc/jre$javaVersion/bin/java
-sudo update-alternatives --set javac $newLoc/jdk$javaVersion/bin/javac
-sudo update-alternatives --set javaws $newLoc/jre$javaVersion/bin/javaws
-
-echo "$prefix STEP 14"
-echo "reload system wide /etc/profile"
-. /etc/profile
-
-echo "$prefix STEPS 15,16,17,18"
-echo "$prefix$prefix CHECK JAVA VERSION:"
-java -version
-echo "$prefix$prefix CHECK JAVAC VERSION:"
-javac -version
+echo "$prefix STEP 12" | tee -a $log
+echo "tell Ubuntu where Oracle java is" | tee -a $log
+sudo update-alternatives --install "/usr/bin/java" "java" "$newLoc/jre$javaVersion/bin/java" 1 | tee -a $log
+sudo update-alternatives --install "/usr/bin/javac" "javac" "$newLoc/jdk$javaVersion/bin/javac" 1 | tee -a $log
+sudo update-alternatives --install "/usr/bin/javaws" "javaws" "$newLoc/jre$javaVersion/bin/javaws" 1 | tee -a $log
 
 
+echo "$prefix STEP 13" | tee -a $log
+echo "tell Ubuntu that Oracle java must be default" | tee -a $log
+sudo update-alternatives --set java $newLoc/jre$javaVersion/bin/java | tee -a $log
+sudo update-alternatives --set javac $newLoc/jdk$javaVersion/bin/javac | tee -a $log
+sudo update-alternatives --set javaws $newLoc/jre$javaVersion/bin/javaws | tee -a $log
 
-echo
-echo
-echo "$prefix Oracle Java complete for $javaVersion"
-echo "###"
+echo "$prefix STEP 14" | tee -a $log
+echo "reload system wide /etc/profile" | tee -a $log
+. /etc/profile | tee -a $log
+
+echo "$prefix STEPS 15,16,17,18" | tee -a $log
+echo "$prefix$prefix CHECK JAVA VERSION:" | tee -a $log
+java -version | tee -a $log
+echo "$prefix$prefix CHECK JAVAC VERSION:" | tee -a $log
+javac -version | tee -a $log
+
+
+
+echo | tee -a $log
+echo | tee -a $log
+echo "$prefix Oracle Java complete for $javaVersion" | tee -a $log
+echo "###" | tee -a $log
