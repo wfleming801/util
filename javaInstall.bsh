@@ -1,0 +1,151 @@
+#!/bin/bash
+
+# scriptAuthor: Will Fleming
+# scriptCreated: Monday 21 January 2013
+#
+
+# javaInstall /media/wfleming/28E9-F710/Oracle\ -\ Java "1.7.0_11" "7u11"
+# javaInstall {tarSource} {javaVersion} {verDes}
+# $1 -- tarSource - location of tar file, fully qualified path
+# $2 -- javaVersion - numeric version designation of java to be installed ie. "1.7.0_11"
+# $3 -- verDes - the versionDesignator from the downloaded file name ie. "7u11"
+
+tarSource="$1"
+javaVersion="$2"
+verDes = "$3"
+prefix="--- "
+newLoc="/usr/local/java"
+jdk32="jdk-$verDes-linux-i586.tar.gz"
+jre32="jre-$verDes-linux-i586.tar.gz"
+jdk64="jdk-$verDes-linux-x64.tar.gz"
+jre64="jre-$verDes-linux-x64.tar.gz"
+doc32="jdk-$verDes-apidocs.zip"
+doc64="jdk-$verDes-apidocs.zip"
+javaEdit="/etc/profile.javaEdit"
+
+# an installation script based on wikihow document
+# "how to install Oracle Java on Ubuntu Linux"
+# 
+
+echo "$prefix STEP 1"
+echo "check if you have 32-bit or 64-bit system"
+bit32=`file /sbin/init | grep "32-bit" | wc -l`
+bit64=`file /sbin/init | grep "64-bit" | wc -l`
+if [ $bit32 == 1]; then
+	echo "this is a 32-bit system"
+fi
+if [ $bit64 == 1]; then
+	echo "this is a 64-bit system"
+fi
+
+echo "$prefix STEP 2"
+echo "check if openjdk java is installed"
+openJDK=`java -version | grep "OpenJDK" | wc -l`
+
+echo "$prefix STEP 3"
+echo "if present remove openJDK"
+if [ $openJDK == 1 ]; then
+	echo "REMOVING OpenJDK"
+	sudo apt-get purge "openjdk-\*"
+fi
+echo "make location for new Java"
+sudo mkdir -p $newLoc
+
+echo "$prefix STEP 4"
+echo " download Java JDK & JRE for linux"
+echo "STEP 4: ASSUME this has already been downloaded and available in $tarSource"
+
+echo "$prefix STEP 5"
+echo "copy java binaries into new java location"
+cd $tarSource
+if [ $bit32 == 1]; then
+	echo "copying 32-bit files"
+	sudo -s cp -r $jdk32 $newLoc
+	sudo -s cp -r $jre32 $newLoc
+	sudo -s cp -r $doc32 $newLoc
+fi
+if [ $bit64 == 1]; then
+	echo "copying 64-bit files"
+	sudo -s cp -r $jdk64 $newLoc
+	sudo -s cp -r $jre64 $newLoc
+	sudo -s cp -r $doc64 $newLoc
+fi
+
+echo "cd to $newLoc"
+cd $newLoc
+
+echo "$prefix STEP 6"
+echo "set permissions"
+if [ $bit32 == 1];	then
+	sudo -s chmod a+x $jdk32
+	sudo -s chmod a+x $jre32
+	sudo -s chmod a+x $doc32
+fi
+if [ $bit64 == 1]; then
+	sudo -s chmod a+x $jdk64
+	sudo -s chmod a+x $jre64
+	sudo -s chmod a+x $doc64
+fi
+
+echo "$prefix STEP 7"
+echo "unpack the compressed Java binaries"
+if [ $bit32 == 1]; then
+	sudo -s tar xvzf $jdk32
+	sudo -s tar xvzf $jre32
+	sudo -s unzip $doc32
+fi
+if [ $bit64 == 1]; then
+	sudo -s tar xvzf $jdk64
+	sudo -s tar xvzf $jdk64
+	sudo -s unzip $doc64
+fi
+
+echo "$prefix STEP 8"
+echo "double check directories"
+ls -a
+echo "you should have seen a directory for jre$javaVersion/, jdk$javaVersion/, and doc/"
+
+
+echo "$prefix STEP 9,10,11"
+echo "edit /etc/profile"
+sudo -s cp /etc/profile /etc/profile.bak
+sudo -s cat /etc/profile > $javaEdit
+sudo -s echo "" >> $javaEdit
+sudo -s echo "JAVA_HOME=$newLoc/jdk$javaVersion" >> $javaEdit
+sudo -s echo "PATH=\$PATH:\$HOME/bin:\$JAVA_HOME/bin" >> $javaEdit
+sudo -s echo "JRE_HOME=$newLoc/jre$javaVersion" >> $javaEdit
+sudo -s echo "PATH=\$PATH:\$HOME/bin:\$JRE_HOME/bin" >> $javaEdit
+sudo -s echo "export JAVA_HOME" >> $javaEdit
+sudo -s echo "export JRE_HOME" >> $javaEdit
+sudo -s echo "export PATH" >> $javaEdit
+sudo -s cp $javaEdit /etc/profile
+
+echo "$prefix STEP 12"
+echo "tell Ubuntu where Oracle java is"
+sudo update-alternatives --install "/usr/bin/java" "java" "$newLoc/jre$javaVersion/bin/java" 1
+sudo update-alternatives --install "/usr/bin/javac" "javac" "$newLoc/jdk$javaVersion/bin/javac" 1
+sudo update-alternatives --install "/usr/bin/javaws" "javaws" "$newLoc/jre$javaVersion/bin/javaws" 1
+
+
+echo "$prefix STEP 13"
+echo "tell Ubuntu that Oracle java must be default"
+sudo update-alternatives --set java $newLoc/jre$javaVersion/bin/java
+sudo update-alternatives --set javac $newLoc/jdk$javaVersion/bin/javac
+sudo update-alternatives --set javaws $newLoc/jre$javaVersion/bin/javaws
+
+echo "$prefix STEP 14"
+echo "reload system wide /etc/profile"
+. /etc/profile
+
+echo "$prefix STEPS 15,16,17,18"
+echo "$prefix$prefix CHECK JAVA VERSION:"
+java -version
+echo "$prefix$prefix CHECK JAVAC VERSION:"
+javac -version
+
+
+
+echo
+echo
+echo "$prefix Oracle Java complete for $javaVersion"
+echo "###"
