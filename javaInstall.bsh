@@ -21,7 +21,7 @@ jdk64="jdk-$verDes-linux-x64.gz"
 jre64="jre-$verDes-linux-x64.gz"
 doc32="jdk-$verDes-apidocs.zip"
 doc64="jdk-$verDes-apidocs.zip"
-javaEdit="/etc/profile"
+javaEdit="/etc/profile.javaEdit"
 timeStamp=`date +%Y%m%d_%H%M%S`
 log="./javaInstall_$timeStamp.log"
 
@@ -110,17 +110,19 @@ echo "you should have seen a directory for jre$javaVersion/, jdk$javaVersion/, a
 
 echo "$prefix STEP 9,10,11" | tee -a $log
 echo "edit /etc/profile" | tee -a $log
-sudo su - | tee -a $log
-cp /etc/profile /etc/profile.bak | tee -a $log
-echo "" >> $javaEdit | tee -a $log
-echo "JAVA_HOME=$newLoc/jdk$javaVersion" >> $javaEdit | tee -a $log
-echo "PATH=\$PATH:\$HOME/bin:\$JAVA_HOME/bin" >> $javaEdit | tee -a $log
-echo "JRE_HOME=$newLoc/jre$javaVersion" >> $javaEdit | tee -a $log
-echo "PATH=\$PATH:\$HOME/bin:\$JRE_HOME/bin" >> $javaEdit | tee -a $log
-echo "export JAVA_HOME" >> $javaEdit | tee -a $log
-echo "export JRE_HOME" >> $javaEdit | tee -a $log
-echo "export PATH" >> $javaEdit | tee -a $log
-exit
+
+sudo -s bash -c cp /etc/profile /etc/profile.bak | tee -a $log
+sudo -s bash -c cat /etc/profile > $javaEdit | tee -a $log
+sudo -s bash -c echo "" >> $javaEdit | tee -a $log
+sudo -s bash -c echo "JAVA_HOME=$newLoc/jdk$javaVersion" >> $javaEdit | tee -a $log
+sudo -s bash -c echo "PATH=\$PATH:\$HOME/bin:\$JAVA_HOME/bin" >> $javaEdit | tee -a $log
+sudo -s bash -c echo "JRE_HOME=$newLoc/jre$javaVersion" >> $javaEdit | tee -a $log
+sudo -s bash -c echo "PATH=\$PATH:\$HOME/bin:\$JRE_HOME/bin" >> $javaEdit | tee -a $log
+sudo -s bash -c echo "export JAVA_HOME" >> $javaEdit | tee -a $log
+sudo -s bash -c echo "export JRE_HOME" >> $javaEdit | tee -a $log
+sudo -s bash -c echo "export PATH" >> $javaEdit | tee -a $log
+sudo -s bash -c mv $javaEdit /etc/profile | tee -a log
+
 
 echo "$prefix STEP 12" | tee -a $log
 echo "tell Ubuntu where Oracle java is" | tee -a $log
