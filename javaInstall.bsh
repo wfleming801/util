@@ -23,7 +23,8 @@ doc32="jdk-$verDes-apidocs.zip"
 doc64="jdk-$verDes-apidocs.zip"
 javaEdit="/etc/profile.javaEdit"
 timeStamp=`date +%Y%m%d_%H%M%S`
-log="./javaInstall_$timeStamp.log"
+origDir=`pwd`
+log="$origDir/javaInstall_$timeStamp.log"
 
 # an installation script based on wikihow document
 # "how to install Oracle Java on Ubuntu Linux"
@@ -59,7 +60,7 @@ echo "STEP 4: ASSUME this has already been downloaded and available in $tarSourc
 
 echo "$prefix STEP 5" | tee -a $log
 echo "copy java binaries into new java location" | tee -a $log
-cd "$tarSource" | tee -a $log
+cd "$tarSource"
 if [ $bit32 == 1 ]; then
 	echo "copying 32-bit files" | tee -a $log
 	sudo -s cp -r $jdk32 $newLoc | tee -a $log
@@ -74,7 +75,7 @@ if [ $bit64 == 1 ]; then
 fi
 
 echo "cd to $newLoc" | tee -a $log
-cd $newLoc | tee -a $log
+cd $newLoc
 
 echo "$prefix STEP 6" | tee -a $log
 echo "set permissions" | tee -a $log
@@ -105,30 +106,43 @@ fi
 echo "$prefix STEP 8" | tee -a $log
 echo "double check directories" | tee -a $log
 ls -a | tee -a $log
-echo "you should have seen a directory for jre$javaVersion/, jdk$javaVersion/, and doc/" | tee -a $log
+echo "you should have seen a directory for jre$javaVersion/, jdk$javaVersion/, and docs/" | tee -a $log
 
 
 echo "$prefix STEP 9,10,11" | tee -a $log
 echo "edit /etc/profile" | tee -a $log
 
-sudo -s bash -c cp /etc/profile /etc/profile.bak | tee -a $log
-sudo -s bash -c cat /etc/profile > $javaEdit | tee -a $log
-sudo -s bash -c echo "" >> $javaEdit | tee -a $log
-sudo -s bash -c echo "JAVA_HOME=$newLoc/jdk$javaVersion" >> $javaEdit | tee -a $log
-sudo -s bash -c echo "PATH=\$PATH:\$HOME/bin:\$JAVA_HOME/bin" >> $javaEdit | tee -a $log
-sudo -s bash -c echo "JRE_HOME=$newLoc/jre$javaVersion" >> $javaEdit | tee -a $log
-sudo -s bash -c echo "PATH=\$PATH:\$HOME/bin:\$JRE_HOME/bin" >> $javaEdit | tee -a $log
-sudo -s bash -c echo "export JAVA_HOME" >> $javaEdit | tee -a $log
-sudo -s bash -c echo "export JRE_HOME" >> $javaEdit | tee -a $log
-sudo -s bash -c echo "export PATH" >> $javaEdit | tee -a $log
-sudo -s bash -c mv $javaEdit /etc/profile | tee -a log
+checkEdit=`cat /etc/profile | grep "javaInstallEdit.bsh" | wc -l`
+
+if [ $checkEdit == 0 ]; then
+	sudo -s bash -c "cp /etc/profile /etc/profile.bak | tee -a $log"
+	sudo -s bash -c "cat /etc/profile > $javaEdit | tee -a $log"
+	sudo -s bash -c "echo '' >> $javaEdit | tee -a $log"
+	sudo -s bash -c 'echo "# javaInstall.bsh edit for step 9-11" >> '$javaEdit' | tee -a '$log
+	sudo -s bash -c 'echo ". /etc/javaInstallEdit.bsh" >> '$javaEdit' | tee -a '$log
+	sudo -s bash -c 'mv '$javaEdit' /etc/profile | tee -a '$log
+fi
+
+je="/etc/javaInstallEdit.bsh"
+sudo -s bash -c "rm $je"
+sudo -s bash -c 'echo "JAVA_HOME='$newLoc'/jdk'$javaVersion'" >> '$je' | tee -a '$log
+sudo -s bash -c 'echo "PATH=\$PATH:\$HOME/bin:\$JAVA_HOME/bin" >> '$je' | tee -a '$log
+sudo -s bash -c 'echo "JRE_HOME='$newLoc'/jre'$javaVersion'" >> '$je' | tee -a '$log
+sudo -s bash -c 'echo "PATH=\$PATH:\$HOME/bin:\$JRE_HOME/bin" >> '$je' | tee -a '$log
+sudo -s bash -c 'echo "export JAVA_HOME" >> '$je' | tee -a '$log
+sudo -s bash -c 'echo "export JRE_HOME" >> '$je' | tee -a '$log
+sudo -s bash -c 'echo "export PATH" >> '$je' | tee -a '$log
+
+# put the $je into the $log file
+sudo -s bash -c 'cat '$je' | tee -a '$log
+
 
 
 echo "$prefix STEP 12" | tee -a $log
 echo "tell Ubuntu where Oracle java is" | tee -a $log
-sudo update-alternatives --install "/usr/bin/java" "java" "$newLoc/jre$javaVersion/bin/java" 1 | tee -a $log
-sudo update-alternatives --install "/usr/bin/javac" "javac" "$newLoc/jdk$javaVersion/bin/javac" 1 | tee -a $log
-sudo update-alternatives --install "/usr/bin/javaws" "javaws" "$newLoc/jre$javaVersion/bin/javaws" 1 | tee -a $log
+sudo -s bash -c 'update-alternatives --install "/usr/bin/java" "java" "'$newLoc'/jre'$javaVersion'/bin/java" 1 | tee -a '$log
+sudo -s bash -c 'update-alternatives --install "/usr/bin/javac" "javac" "'$newLoc'/jdk'$javaVersion'/bin/javac" 1 | tee -a '$log
+sudo -s bash -c 'update-alternatives --install "/usr/bin/javaws" "javaws" "'$newLoc'/jre'$javaVersion'/bin/javaws" 1 | tee -a '$log
 
 
 echo "$prefix STEP 13" | tee -a $log
@@ -143,9 +157,11 @@ echo "reload system wide /etc/profile" | tee -a $log
 
 echo "$prefix STEPS 15,16,17,18" | tee -a $log
 echo "$prefix$prefix CHECK JAVA VERSION:" | tee -a $log
-java -version | tee -a $log
+java -version 
+java -version >> $log 2>> $log
 echo "$prefix$prefix CHECK JAVAC VERSION:" | tee -a $log
-javac -version | tee -a $log
+javac -version
+javac -version >> $log 2>> $log
 
 
 
