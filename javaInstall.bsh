@@ -12,7 +12,7 @@
 
 tarSource="$1"
 javaVersion="$2"
-verDes = "$3"
+verDes="$3"
 prefix="--- "
 newLoc="/usr/local/java"
 jdk32="jdk-$verDes-linux-i586.tar.gz"
