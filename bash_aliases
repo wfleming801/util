@@ -87,11 +87,14 @@ _gc() # git commit with message + push to origin
 	_gp $currBranch
 }
 
-_gfm() # update local master
+_gfm() # update (fetch and merge) into local branch
 {
 	_use _gfm
+	_gb
+	echo "Fetching from origin to current branch..."
 	git fetch origin
-	git merge origin/master
+	echo "Merging into current branch"
+	git merge origin
 }
 
 _gdb() # delete latest branch
@@ -101,7 +104,9 @@ _gdb() # delete latest branch
 	toDelBranch=`git branch | grep "\*" | awk '{print $2}'`
 	echo "Delete $toDelBranch?"
 	read -p "Press any key to continue... (CTRL-C to abort)"
+	echo "Switching to master..."
 	git checkout master
+	_gfm
 	git branch -d "$toDelBranch"
 }
 
