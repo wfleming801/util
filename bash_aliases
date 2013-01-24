@@ -11,10 +11,17 @@ _HELP=0
 
 _use() # helper function to print usage detail for functions
 {
+	# this is a special-case, this use statement must be commented out
+	# or an infinite loop occurs. help on use will still work however
+	#_use _use {aliasname}
 	# silent if $_HELP isn't set
 	if [ $_HELP == 1 ]; then
 		echo -e "\e[1;34mUSAGE $1:\e[0m"
-		cat ~/.bash_aliases | grep "_use $1" | awk '{print substr($0,6)}'
+		val="^$1\(\) #"
+		txt=`cat ~/.bash_aliases | grep -E "$val"`
+		echo -e "\e[1;33m$txt"
+		echo -e "\e[0m"
+		cat ~/.bash_aliases | grep "_use $1" | awk '{print "\t" substr($0,7)}'
 		echo ""
 
 	fi
