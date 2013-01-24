@@ -76,7 +76,7 @@ _gc() # git commit with message + push to origin
 	_use _gc {message}
 	currBranch=`git branch | grep "\*" | awk '{print $2}'`
 	git commit -m "$1"
-	gp $currBranch
+	_gp $currBranch
 }
 
 _gfm() # update local master
