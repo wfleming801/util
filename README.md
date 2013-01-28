@@ -12,6 +12,20 @@ NOTE: works reasonably well, needs full testing still, try out before using whol
 	"~/.bash_aliases"
 	- this will get called automatically on next terminal session
 - I'm using "_" (the underbar) for a namespace so there is no collision with existing/future commands
+
+- minimal path for development changes:
+---------------------------------------
+	* (assuming project already cloned using _gc_NNN())
+		* _gmc {branchName}
+			* [Make changes]
+		* _gac {message}	
+			* (unless new files -- _ga {filename}, or _gaf {filename.gaf})
+			* uses commit -a (commit all)
+		* [PULL REQUEST]
+		* _gdb
+
+Adding new aliases:
+
 - Coding style is paramount for _help and _list to function
 	- first column start a new function
 	- _{functionName}() # {textDescription} {lineFeed} {openBrace}
