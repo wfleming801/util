@@ -97,11 +97,26 @@ _gfm() # update (fetch and merge) into local branch
 	git merge origin
 }
 
-_gdb() # delete latest branch
+_gac() # commit all changes (blindly) then push to origin -- ignores untracked files
+{
+	_use _gac {message}
+	currBranch=`git branch | grep "\*" | awk '{print $2}'`
+	echo "Commiting blindly all changes...ignoring untracked files!"
+	git status
+	read -p "Press any key to continue...(CTRL-C to abort)"
+	git commit -a -m "$1"
+	_gp $currBranch
+	echo "Don't forget to create a PULL REQUEST"
+}
+
+_gdb() # update then delete current branch, switch to master
 {
 	_use _gdb
+	echo -e "\e[0;31mASSUMPTION: PULL REQUEST has been MERGED....\e[0m"
 	git branch
 	toDelBranch=`git branch | grep "\*" | awk '{print $2}'`
+	echo "Updating current branch($toDelBranch)"
+	_gfm
 	echo "Delete $toDelBranch?"
 	read -p "Press any key to continue... (CTRL-C to abort)"
 	echo "Switching to master..."
