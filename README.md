@@ -1,4 +1,4 @@
-![alt text]( util/blob/master/utilIcon.jpg "Util")
+![alt text](wfleming801/util/utilIcon.jpg "Util Icon")
 
 util
 ====
