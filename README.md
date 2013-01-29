@@ -1,4 +1,4 @@
-![alt text](wfleming801/util/utilIcon.jpg "Util Icon")
+![alt text](wfleming801.github.com/util/utilIcon.jpg "Util Icon")
 
 util
 ====
